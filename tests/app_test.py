@@ -1,8 +1,6 @@
-import os
 import json
 import pytest
 from pathlib import Path
-from flask import session
 from project.app import app, db
 
 TEST_DB = "test.db"
@@ -19,6 +17,7 @@ def client():
         db.create_all()  # setup
         yield app.test_client()  # tests run here
         db.drop_all()  # teardown
+
 
 def login(client, username, password):
     """Login helper function"""
@@ -75,6 +74,7 @@ def test_messages(client):
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
+
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
     rv = client.get("/delete/1")
@@ -85,36 +85,37 @@ def test_delete_message(client):
     data = json.loads(rv.data)
     assert data["status"] == 1
 
+
 # my tests
+
 
 # tests for search
 def test_search_without_query(client):
-    response = client.get('/search/')
+    response = client.get("/search/")
 
     assert response.status_code == 200
 
 
 def test_search_with_query(client):
-    response = client.get('/search/?query=flask')
+    response = client.get("/search/?query=flask")
 
     assert response.status_code == 200
 
+
 # tests for login required to delete
 
+
 def test_login_required_not_logged_in(client):
-    response = client.get('/delete/1')
+    response = client.get("/delete/1")
 
     assert response.status_code == 401
-    assert response.json == {
-        'status': 0,
-        'message': 'Please log in.'
-    }
+    assert response.json == {"status": 0, "message": "Please log in."}
 
 
 def test_login_required_logged_in(client):
     with client.session_transaction() as session:
-        session['logged_in'] = True
+        session["logged_in"] = True
 
-    response = client.get('/delete/1')
+    response = client.get("/delete/1")
 
     assert response.status_code == 200
