@@ -80,3 +80,19 @@ def test_delete_message(client):
     rv = client.get('/delete/1')
     data = json.loads(rv.data)
     assert data["status"] == 1
+
+# my tests
+
+# tests for search
+def test_search_without_query():
+    with app.test_client() as client:
+        response = client.get('/search/')
+
+        assert response.status_code == 200
+
+
+def test_search_with_query():
+    with app.test_client() as client:
+        response = client.get('/search/?query=flask')
+
+        assert response.status_code == 200
